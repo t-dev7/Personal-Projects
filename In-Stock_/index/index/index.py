@@ -1,10 +1,16 @@
 import tkinter as tk
-import time
+import time 
+from time import sleep
 import smtplib
 import requests
+from lxml.html import fromstring
 import sqlite3
+import multiprocessing as mp
+from db import DB
+import pandas as pd
 from bs4 import BeautifulSoup
 from threading import*
+
 DELAY_TIME = 60 # seconds
 dict = {}
 dict_wait = {}
@@ -16,6 +22,9 @@ val = ""
 first_entry1 = False
 delete_bit = False  #boolean to skip going to method everytime if there is nothgin to delete
 reboot_bit = False
+proxies_ = []
+pCount = 0
+thePage = []
 #thread_bool =False
 
 window = tk.Tk()
@@ -29,29 +38,21 @@ window.geometry("700x200")
 #create a local data base (database meant to serve as backup in case program goes down)
 #all of the looping is done through dictionary data structure for speed
 
-
-def db_create():
-    global conn
-    conn = sqlite3.connect('url.db', check_same_thread=False)
-    global cursor
-    cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS url (link TEXT)")    #create table 
+def get_proxies():
+    url = 'https://proxyscrape.com/free-proxy-list'
     
-#method to check if database items need to be reloaded into dictionary data structure
-def db_checkForReboot():
-    #check if there is any existing data in db on first insert data
-    if(cursor.execute("SELECT EXISTS (SELECT 1 FROM url)").fetchone()[0] == 1):
-        global reboot_bit
-        global thread_bool
-        global reboot_label
-        
-        reboot_bit = True
-        cursor.execute("SELECT * FROM url")
-        print("Rebooting\n")
-        reboot_label["text"] = "Click Reboot"
-        for row in cursor:
-            dict[row[0]] = "0"
-            print("%s \n" % row[0])
+    resp = requests.get('https://www.socks-proxy.net/')
+    df = pd.read_html(resp.text)[0]
+
+    proxies = []
+    
+    for i in df.index:
+        proxy = str(df['IP Address'][i]) + ':' + str(df['Port'][i])
+        proxies.append(proxy)
+
+    return proxies
+
+    
 
 def reboot():
     global reboot_bit
@@ -60,27 +61,6 @@ def reboot():
     reboot_label["text"] = ""
     threading()
         
-        
-    
-#clear all contents of the database   
-def db_clear():
-    cursor.execute("DELETE FROM url")
-    conn.commit()
-
-#method to insert data into the database
-def db_insert(url):
-    key = str(url)
-    cursor.execute("INSERT INTO url VALUES (?);", (key,))
-    conn.commit()
-
-#method to delete data from database   
-def db_delete(url):
-    cursor.execute(
-    "DELETE FROM url WHERE link = ?",
-    (url,),
-    ).fetchall()
-    conn.commit()
-    
     
 #method to show time since last update. Meant to be visual proof program running
 def update_time_label():
@@ -106,15 +86,76 @@ def send_email(url):
     content
     mail.sendmail(sender, recipient, content)
     mail.close()
+    
+def proxy_process(i, url, proxies, s, e):
+    global thePage
+    global stop_threads
+    found = False
+    print("This is thread %i \n" %i)
+    if(stop_threads):
+        return
+    for j in range(s,e):
+        try:
+            page = requests.get(url,proxies={"http": proxies[j], "https": proxies[j]},timeout=2)
+            thePage.append(page)
+            print("Thread %i found the page at index:%i" % (i,j))
+            stop_threads=True
+            time.sleep(0.1)
+            print("Closing Thread #%i" %i)
+            return
+        except:
+            print("Not fount in thread %i : [%i]\n" % (i,j))
+    print("Closing Thread #%i" %i)
+
+
+       
 
 #method to search each url saved and check for in stock update
 def processHTML(url):
     global toDelete 
     global delete_bit
-    
-    page = requests.get(url)
+    global pCount
+    global proxies_
+    global thePage
+    global stop_threads
 
-    soup = BeautifulSoup(page.content, "html.parser")
+   
+    
+    threads = []
+    stop_threads=False
+    itCount = len(proxies_)/mp.cpu_count()
+    itCount = int(itCount)
+    itStart = 0
+    itEnd = itCount-1
+    
+    for i in range(mp.cpu_count()):
+        t=Thread(target=proxy_process, args=(i, url, proxies_, itStart, itEnd)) 
+        t.start()
+        threads.append(t)
+        if(itCount+itEnd < len(proxies_)):
+            if i == 0:
+                itStart += itCount
+            else:
+                itStart += (itCount-1)
+                
+            itEnd += (itCount -1)
+        else:
+            break
+        
+    for t in threads:
+        t.join()
+      
+    #refresh proxies    
+    get_proxies()    
+     
+    #just use own address if couldnt find 
+    if(stop_threads == True):
+        soup = BeautifulSoup(thePage[0].content, "html.parser")
+    else:
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, "html.parser")
+        
+
 
     # the search is case sensitive
     if(soup.find(string = "Sold out")):
@@ -147,7 +188,7 @@ def delete_instock():
     
     for x in toDelete:  #loop through url delete list
         del dict[x]     #delete dictionary entry
-        db_delete(x)    #delete database entry
+        DB.delete(x)    #delete database entry
     toDelete.clear()    #clear the list
     delete_bit = False  #set boolean to false... no more items to delete
 
@@ -158,7 +199,7 @@ def checkKey(dic, url):
         print("Already Tracking")
     else:                           #if it's not in the dictionary 
         dic[url] = "0"      #add it
-        db_insert(url)              #insert the data into db
+        DB.insert(url)              #insert the data into db
 
 
 #inserts the url into the dictionary
@@ -173,17 +214,14 @@ def insertURL():
         dict[url] = "0"             #set the value to "sold out"
         e1.delete("1.0","end")      #clear the text box area
         first_entry1 = True
-        db_insert(url)              #insert data
+        DB.insert(url)              #insert data
         threading()                 #start threading method
     elif(reboot_bit == True or first_entry1 == True):
         checkKey(dict, url)         
         e1.delete("1.0","end")      #clear text box area
-        if(thread_bool == False):
+        if(reboot == False):
             threading()
 
-def call_thread():
-    global thread_bool
-    threading()
         
 #thread to run web check and keep mainloop going at same time
 def threading(): 
@@ -212,11 +250,12 @@ def check_if_updated():
         
 
         #time.sleep(DELAY_TIME)  #after 1 loop, pause for 60 sec and then run again
-        time.sleep(61)  #after 1 loop, pause for 60 sec and then run again
+        time.sleep(15)  #after 1 loop, pause for 60 sec and then run again
         
-def main():
-    
-    print("")
+def db_clear():
+    DB.clear()
+        
+
 
 #########################################################################
 
@@ -229,9 +268,16 @@ reboot_label=tk.Label(window, text="", font=('Aerial 12'))
 reboot_label.grid(row=0,column=1)
 
 print("Running...\n")
-db_create()
-db_checkForReboot()
 
+
+DB.create()
+
+if(DB.needReboot()):
+    reboot_bit=DB.get_Reboot_Bit()
+    dict = DB.get_dict()
+
+
+proxies_ = get_proxies()
 
 
 global time_label
