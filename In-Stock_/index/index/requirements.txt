@@ -1,0 +1,8 @@
+pandas
+sqlite3
+tkinter
+time
+smtplib
+multiprocessing
+BeautifulSoup
+requests

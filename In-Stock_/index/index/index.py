@@ -54,15 +54,18 @@ def reboot():
     global reboot_bit
     global reboot_label
     global dict
+
+    t = time.localtime()
+    current_time = time.strftime("%D, %I:%M:%S %p", t)
+    reboot_label["text"] = "Reboot On: %s" % current_time
     
-    reboot_label["text"] = ""
     threading(dict)
         
     
 #method to show time since last update. Meant to be visual proof program running
 def update_time_label():
     t = time.localtime()
-    current_time = time.strftime("%H:%M:%S", t)
+    current_time = time.strftime("%I:%M:%S %p", t)
     time_label["text"] = "Last Updated: %s" % current_time
     
     
@@ -126,16 +129,14 @@ def processHTML(url):
     global stop_threads
     global firstItem
 
-   
-    
     threads = []
-    breakLoop = False
     stop_threads=False
     itCount = len(proxies_)/mp.cpu_count()
     itCount = int(itCount)
     itStart = 0
     itEnd = itCount-1
     
+    #creating threads for checking proxies
     for i in range(mp.cpu_count()):
         t=Thread(target=proxy_process, args=(i, url, proxies_, itStart, itEnd)) 
         t.start()
@@ -157,11 +158,7 @@ def processHTML(url):
         
     for t in threads:
         t.join()
-      
-    #refresh proxies    
-    get_proxies()    
-     
-
+         
     #just use own address if couldnt find 
     if(stop_threads == True):
         for i in len(dict):
@@ -246,6 +243,9 @@ def insertURL():
     global first_entry1
     global reboot_bit
     global firstItem
+    global firstEntry_label
+    
+    firstEntry_label["text"] = ""
     
     url = e1.get("1.0","end-1c")    #get text from textbox area
     
@@ -283,8 +283,11 @@ def check_dictionary(dict):
 #check the websites in the dictionary to see if they have been updated 
 def check_if_updated(dict):
     while True:
+        global proxies_
+        #get updated proxies
+        proxies_= get_proxies()
         
-        check_dictionary(dict)      #method
+        check_dictionary(dict)      
         update_time_label()
         
 
@@ -302,11 +305,14 @@ def db_clear():
 e1 = tk.Text(window, height = 5, width = 20) 
 e1.grid(row=0,column=0)
 
-global reboot_label
+firstEntry_label=tk.Label(window, text="", font=('Aerial 12'))
+firstEntry_label.grid(row=3,column=1)
+
+
 reboot_label=tk.Label(window, text="", font=('Aerial 12'))
 reboot_label.grid(row=0,column=1)
 
-global time_label
+
 time_label=tk.Label(window, text="Last Updated: ", font=('Aerial 12'))
 time_label.grid(row=1,column=1)
 
@@ -322,12 +328,6 @@ dbClear_Button = tk.Button(window,
                         command = db_clear)
 dbClear_Button.grid(row=3,column=0) 
 
-# Button Creation 
-startButton = tk.Button(window, 
-                        text = "Recover from reboot",  
-                        command = reboot)
-startButton.grid(row=4,column=0) 
-
 
 print("Running...\n")
 
@@ -339,13 +339,12 @@ if(DB.needReboot()):
     dict = DB.get_dict()
     firstItem = DB.get_firstItem()
     reboot_label.config(text=DB.get_Reboot_Label())
+    window.after(0,reboot)
+else:
+    firstEntry_label["text"] = "Please enter a url"
+
+
     
-
-
-proxies_ = get_proxies()
-
-
-
 window.mainloop()
 
 
