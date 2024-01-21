@@ -1,9 +1,14 @@
 import sqlite3
+import smtplib 
+
+_reboot_bit = False
+_reboot_label = ""
+firstItem = ""
 
 class DB:
     #Variables
-    _reboot_label = ""
-    _reboot_bit = False
+
+    
     _dict = {}
     conn = sqlite3.connect('url.db', check_same_thread=False)
     cursor = conn.cursor()
@@ -11,6 +16,8 @@ class DB:
     
 ###########################################################
 ################### Getter's & Setter's ###################
+
+
     def set_Reboot_Label(label):
         global _reboot_label
         _reboot_label = label
@@ -34,6 +41,14 @@ class DB:
     def get_dict():
         global _dict 
         return _dict   
+    
+    def get_firstItem():
+        global firstItem
+        return firstItem
+    
+    def set_firstItem(first):
+        global firstItem
+        firstItem = first
         
 ###########################################################   
 ###########################################################   
@@ -54,6 +69,21 @@ class DB:
         key = str(url)
         DB.cursor.execute("INSERT INTO url VALUES (?);", (key,))
         DB.conn.commit()
+        
+    def rebootEmail():
+        content = ("The program crashed... Needs to be rebooted\n") 
+        mail=smtplib.SMTP('smtp.gmail.com', 587)
+        mail.ehlo()
+        mail.starttls()
+        sender='0code.emailer0@gmail.com'
+        recipient='davistrevor68@gmail.com'
+        mail.login('0code.emailer0@gmail.com','rbzr eosv canh znbb')
+        header='To:'+ recipient + '\n'+'From:' \
+        +sender+'\n'+'subject:In-Stock Crashed\n'
+        content=header + content
+        content
+        mail.sendmail(sender, recipient, content)
+        mail.close()
     
     #check if program needs to be rebooted from a crash or close
     def needReboot():
@@ -61,6 +91,8 @@ class DB:
         #check if there is any existing data in db on first insert data
         if(DB.cursor.execute("SELECT EXISTS (SELECT 1 FROM url)").fetchone()[0] == 1):
             
+            
+            DB.rebootEmail()
             
             #reboot_bit = True
             DB.set_Reboot_Bit(True)
@@ -72,6 +104,8 @@ class DB:
             DB.set_Reboot_Label("Click Reboot")
 
             dict = {}
+            DB.set_firstItem(DB.cursor.fetchone())
+            DB.cursor.execute("SELECT * FROM url")
             for row in DB.cursor:
                 dict[row[0]] = "0"
                 print("%s \n" % row[0])
