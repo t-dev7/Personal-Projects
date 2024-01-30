@@ -1,4 +1,6 @@
 import tkinter as tk
+import os
+import sys
 import time 
 from time import sleep
 import smtplib
@@ -10,6 +12,9 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from threading import*
 
+#################
+#Global Variables
+#################
 DELAY_TIME = 60 # seconds
 dict = {}
 firstItem = ""
@@ -21,6 +26,8 @@ reboot_bit = False
 proxies_ = []
 pCount = 0
 thePage = []
+timeTrack = time.localtime()
+
 
 window = tk.Tk()
 
@@ -48,15 +55,22 @@ def get_proxies():
 
     return proxies
 
+def restart():
+    print('Restarting script...')
+    os.execv(sys.executable, ['python'] + sys.argv)
+    
     
 
 def reboot():
     global reboot_bit
     global reboot_label
     global dict
-
-    t = time.localtime()
-    current_time = time.strftime("%D, %I:%M:%S %p", t)
+    global timeTrack
+    
+    timeTrack = time.localtime()
+    
+    #t = time.localtime()
+    current_time = time.strftime("%D, %I:%M:%S %p", timeTrack)
     reboot_label["text"] = "Reboot On: %s" % current_time
     
     threading(dict)
@@ -68,7 +82,20 @@ def update_time_label():
     current_time = time.strftime("%I:%M:%S %p", t)
     time_label["text"] = "Last Updated: %s" % current_time
     
-    
+def noMoreUrlEmail():
+        content = ("There are no more URL's to track\n") 
+        mail=smtplib.SMTP('smtp.gmail.com', 587)
+        mail.ehlo()
+        mail.starttls()
+        sender='0code.emailer0@gmail.com'
+        recipient='davistrevor68@gmail.com'
+        mail.login('0code.emailer0@gmail.com','password')
+        header='To:'+ recipient + '\n'+'From:' \
+        +sender+'\n'+'subject:In-Stock Finished\n'
+        content=header + content
+        content
+        mail.sendmail(sender, recipient, content)
+        mail.close()
     
 #method to send email when item is in stock
 def send_email(url):
@@ -80,7 +107,7 @@ def send_email(url):
     mail.starttls()
     sender='0code.emailer0@gmail.com'
     recipient='davistrevor68@gmail.com'
-    mail.login('0code.emailer0@gmail.com','rbzr eosv canh znbb')
+    mail.login('0code.emailer0@gmail.com','password')
     header='To:'+ recipient + '\n'+'From:' \
     +sender+'\n'+'subject:Item in Stock!\n'
     content=header + content
@@ -183,7 +210,7 @@ def processHTML(url):
             elif(soup.find(string = "OUT OF STOCK")):
                 pass
             else:
-                #send_email(url)         #send an email to notify you the item is in stock
+                send_email(url)         #send an email to notify you the item is in stock
                 toDelete.append(url)    #list of url to remove from saved now that it is in stock
                 delete_bit = True       
                 print("In Stock")
@@ -213,7 +240,7 @@ def processHTML(url):
             elif(soup.find(string = "OUT OF STOCK")):
                 pass
             else:
-                #send_email(url)         #send an email to notify you the item is in stock
+                send_email(url)         #send an email to notify you the item is in stock
                 toDelete.append(url)    #list of url to remove from saved now that it is in stock
                 delete_bit = True       
                 print("In Stock")
@@ -227,6 +254,11 @@ def delete_instock():
         DB.delete(x)    #delete database entry
     toDelete.clear()    #clear the list
     delete_bit = False  #set boolean to false... no more items to delete
+    
+    #after last 
+    if(len(dict) == 0):
+        noMoreUrlEmail()
+        sys.exit(1)
 
 #method that checks if the key that was entered is already in the dictionary
 def checkKey(dic, url):
@@ -282,8 +314,17 @@ def check_dictionary(dict):
 
 #check the websites in the dictionary to see if they have been updated 
 def check_if_updated(dict):
+    global timeTrack
+
     while True:
         global proxies_
+        #if time elapsed is 24 hours, restart the code 
+        t = time.mktime(time.localtime())-time.mktime(timeTrack)
+        if(t >= 86400.0): 
+            restart()
+        
+        
+        
         #get updated proxies
         proxies_= get_proxies()
         

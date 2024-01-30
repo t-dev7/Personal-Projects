@@ -77,7 +77,7 @@ class DB:
         mail.starttls()
         sender='0code.emailer0@gmail.com'
         recipient='davistrevor68@gmail.com'
-        mail.login('0code.emailer0@gmail.com','rbzr eosv canh znbb')
+        mail.login('0code.emailer0@gmail.com','password')
         header='To:'+ recipient + '\n'+'From:' \
         +sender+'\n'+'subject:In-Stock Crashed\n'
         content=header + content
