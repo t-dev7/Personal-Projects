@@ -2,6 +2,8 @@
 Date-Time Copy to Clipboard
 
 # Description
+Source files that grab the current Date in the format "mm/dd/yyyy - hh:mm am/pm" and copies it to the system clipboard.
+
 ## Motivation
 We use microsoft forms as our desktop support ticketing system where it uploads to a sharepoint list. On that list we have sections for comments and feedback. However, we write the date and the time in the those notes fields at the start of a new note that we add to any ongoing ticket. I got tired of manually writting out the date and time before writing my note. So I created this quick script and mapped it to a keyboard input to run when pressed.
 
