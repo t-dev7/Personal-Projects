@@ -12,5 +12,7 @@ I wrote this in both Python and C++. Python was very easy as there is a "copy to
 
 ## Execution
 Of course you will need one of the following 
-1. 
+  1. a shell/cmd command to run a gcc compiler(C++) on keyboard map input.
+  2. a shell/cmd command to run your python code on keyboard map input.
+  3. create and executable of the source code to run on keyboard map input.
 
