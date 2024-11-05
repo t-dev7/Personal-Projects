@@ -10,3 +10,7 @@ At work we use microsoft forms as our desktop support ticketing system where it 
 ## Details
 I wrote this in both Python and C++. Python was very easy as there is a "copy to clipboard" library (typical of python). However, I really wanted to optimize speed in this scenario as python is an interpreted language and it took a bit longer to run. C++ really sped things up and I learned a lot about having to allocate memory to copy the dateTime to the clipboard. It was a fun little project and works great! 
 
+## Execution
+Of course you will need one of the following 
+1. 
+
