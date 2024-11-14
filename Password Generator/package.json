@@ -1,0 +1,14 @@
+{
+  "name": "password-generator",
+  "version": "0.0.0",
+  "description": "Password Generator",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  },
+  "devDependencies": {
+    "eslint": "^8.21.0"
+  },
+  "eslintConfig": {
+  }
+}
