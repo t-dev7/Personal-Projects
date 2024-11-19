@@ -1,4 +1,4 @@
-# Tubbs Island WebScraper
+# Tide Data WebScraper
 Grabs tide data and sends and email when the tides are above a certain height.
 
 # Specifics
