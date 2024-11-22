@@ -66,7 +66,7 @@ input:checked + .slider:before {
 .flex-container-row {
     display: flex;
     flex-direction: row;
-    align-self: stretch;
+    align-self:center;
     justify-content: center;
     padding-top: 10px;
 }
@@ -75,19 +75,23 @@ input:checked + .slider:before {
     align-self: auto;
     text-align: center;
     line-height: 75px;
-    font-size: 30px;
+    
 }
 
 
 .flex-container-coulmn > div {
         background-color: #f1f1f1;
         text-align: center;
-        font-size: 30px;
+        font-size: 10px;
     }
 
 
-/* Traditional Column */
 
+    
+/*************************** Traditional Column *************************/
+#flex-trad > h1{
+    font-size: 40px;
+}
 
 .flex-trad-column {
     display: flex;
@@ -99,7 +103,7 @@ input:checked + .slider:before {
         align-self: stretch;
         text-align: center;
         line-height: 75px;
-        font-size: 30px;
+     
     }
 
 .flex-trad-column-body {
@@ -110,40 +114,54 @@ input:checked + .slider:before {
 
 }
 
+#tradTitle{
+    transition: 700ms;
+}
 
 
 
 
-/* Dictionary Column */
+
+/***************************** Dictionary Column ************************/
+
+#dictTitle{
+    transition: 700ms;
+}
+
+#flex-dict > h1{
+    font-size: 50px;
+    
+}
+
 .flex-dict-column-body {
     visibility: visible;
     display: flex;
     flex-direction: column;
     padding: 50px;
-
+    
 }
 
 
-    .flex-dict-column {
-        display: flex;
-        flex-direction: column;
-        background-color: red;
-        padding: 50px;
-    }
-
-
-
-
-
-
-
+.flex-dict-column {
+    display: flex;
+    flex-direction: column;
+    background-color: red;
+    padding: 50px;
+}
 
 
 
 /* checkbox container options animation */
 
-.main{
 
+.main{
+    font-size: 20px;
+    transform: scale(1.5);
+    line-height: 0.5;
+    overflow-wrap: normal;
+    padding-block: 20px;
+    
+    
 }
 
 
