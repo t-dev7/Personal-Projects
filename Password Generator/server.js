@@ -93,6 +93,38 @@ function generateDict(wordCount, checkBoxes){
    
             
     switch (option) {
+
+        case '0':   // include numbers
+            for(let i = 0; i < wordCount; i++){
+                gen+= replaceChar(m_DictWords.get(String(random(csvWordCount))), option);     // add number at beginning of word
+                
+                
+                // Stop the programs from adding the separator "-" at the end 
+                if(i + 1 == wordCount){
+                    // Do Nothing
+                }
+                else{
+                    gen+= ("-");
+                }
+            }
+            
+            console.log(gen);
+            break;
+
+        case '01':   // include numbers
+            
+            console.log(gen);
+            break;
+
+        case '02':   // include numbers
+            
+            console.log(gen);
+            break;
+
+        case '03':   // include numbers
+            
+            console.log(gen);
+            break;
         
         case '1':   // include numbers
             for(let i = 0; i < wordCount; i++){
@@ -189,7 +221,7 @@ function generateTrad(wordCount, checkBoxes){
         
         case '1':   // include numbers
             
-            console.log(option);
+            console.log(gen);
             break;
 
         case '12':  //include nums and replace common
@@ -223,28 +255,41 @@ function generateTrad(wordCount, checkBoxes){
 }   
    
 
-function replaceChar(word){
-
-
+function replaceChar(word, option){
     var result = "";
-    for(i = 0; i < word.length; i++)
 
-        switch(word.charAt(i)){
-            case 'a':
-            case 'A':
-                result += '@';
-                break;
+    if(option == '2' || option == '12' || option == '23'){
+        
+        for(i = 0; i < word.length; i++)
 
-            case 'i':
-            case 'I':
-                result += '1';
-                break;
-            
-            
-            
-            default:
+            switch(word.charAt(i)){
+                case 'a':
+                case 'A':
+                    result += '@';
+                    break;
+
+                case 'i':
+                case 'I':
+                    result += '1';
+                    break;
+                
+                
+                
+                default:
+                    result += word.charAt(i);
+            }
+        }
+    if(option == '0' || option == '01' || option == '03'){
+        tempChar = '';
+        for(i = 0; i < word.length; i++){
+            if(random(11) > 8){
+                tempChar = word.charAt(i);
+                result += tempChar.toUpperCase();
+            }
+            else
                 result += word.charAt(i);
         }
+    }
 
     return result;
 }
