@@ -16,19 +16,33 @@ app.use(express.urlencoded({ extended: true })); // For form data
 
 app.use(express.json()); // For JSON data
 
-
+// Receive and respond to button click 
 app.post('/genMethod', (req, res) => {
-    var checked = req.body.value; // Access the variable
-    var wordCount = req.body.wordCount;
-    var checkBoxes = req.body.check;
+    var checked = req.body.value;       // Access the variable
+    var wc = req.body.wordCount;        // how many words in generation
+    var checkBoxes = req.body.check;    // which checkboxes were checked
+    var data = "";
+    
 
-    if(!checked)
-        generateDict(wordCount, checkBoxes);
+    
+    // Dictionary method
+    if(!checked){
+        data = generateDict(wc, checkBoxes);
+    }
+    // Traditional Method
     else
-        generateTrad(wordCount, checkBoxes);
+        data = generateTrad(wc, checkBoxes);
 
-    console.log(checkBoxes);
 
+     // Send a response back to the client
+     var body = JSON.stringify({     
+        value: checked,
+        wordCount: wc,
+        check: checkBoxes,
+        phrase: data
+      });
+     res.status(200).send(body);
+    
   });
 
 
@@ -42,7 +56,7 @@ app.listen(PORT, (error) =>{
     }
 );
     
-
+//!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
 function init_DictLoad() {
@@ -74,29 +88,31 @@ function init_DictLoad() {
 
 }
 
+//!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+// Random number generation
 function random(int){
     return (Math.floor(Math.random() * int));
 }
-//////////////////////////////////////////////////////////////////////////
+
+//!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 function generateDict(wordCount, checkBoxes){
-    var gen = "";
+    var gen = "";       // Result
+    var option = "";    // CheckBox determination
 
-    option = "";
+    // Checkboxes are in allocated to a number (e.g. 1, 2, 3...) in string format
+    // For each element in the array of checkboxes, append it to "option" string
     checkBoxes.forEach((element) => {
         option += String(element);
     });
-
-    //! Testing
-    console.log(option);
   
    
-            
+    // switch statement to handle checkboxes     
     switch (option) {
-
-        case '0':   // include numbers
+        case '0':   //* Include Caps ******************************
             for(let i = 0; i < wordCount; i++){
-                gen+= replaceChar(m_DictWords.get(String(random(csvWordCount))), option);     // add number at beginning of word
+                gen += replaceChar(m_DictWords.get(String(random(csvWordCount))), option);     // add number at beginning of word
                 
                 
                 // Stop the programs from adding the separator "-" at the end 
@@ -107,21 +123,33 @@ function generateDict(wordCount, checkBoxes){
                     gen+= ("-");
                 }
             }
+            break;
+
+        case "01":   //* Include Caps & Numbers ******************************
+            for(let i = 0; i < wordCount; i++){
+                // Random number gen to decide if the number is before or after the word
+                if(random(2) == 0)  
+                    gen+= (String(random(10)) + replaceChar(m_DictWords.get(String(random(csvWordCount))), option));     // add number at beginning of word
+                else
+                    gen += (replaceChar(m_DictWords.get(String(random(csvWordCount))), option) + String(random(10)));     // add number at end
+                
+
+                // Stop the programs from adding the separator "-" at the end 
+                if(i + 1 == wordCount){
+                    // Do Nothing
+                }
+                else{
+                    gen+= ("-");
+                }
+        }
+        break;
+
+        case "02":   //* Include Caps & Replace Common *************************
             
             console.log(gen);
             break;
 
-        case '01':   // include numbers
-            
-            console.log(gen);
-            break;
-
-        case '02':   // include numbers
-            
-            console.log(gen);
-            break;
-
-        case '03':   // include numbers
+        case '03':   //* Include Caps & No Same Starting **********************
             
             console.log(gen);
             break;
@@ -141,7 +169,6 @@ function generateDict(wordCount, checkBoxes){
                     gen+= ( "-");
                 }
             }
-            console.log(gen);
             break;
 
         case '12':  //include nums and replace common
@@ -159,7 +186,6 @@ function generateDict(wordCount, checkBoxes){
                     gen+= ("-");
                 }
             }
-            console.log(gen);
             break;
 
         case '13':  // include nums and no same starting
@@ -169,7 +195,7 @@ function generateDict(wordCount, checkBoxes){
 
         case '2':   // Replace common
             for(let i = 0; i < wordCount; i++){
-                gen += (replaceChar(m_DictWords.get(String(random(csvWordCount)))));
+                gen += replaceChar(m_DictWords.get(String(random(csvWordCount))), option);
                     if(i + 1 == wordCount){
                         // Do Nothing
                     }
@@ -177,7 +203,6 @@ function generateDict(wordCount, checkBoxes){
                         gen+= ("-");
                     }
                 }
-            console.log(gen);
             break;
 
         case '23':   // Replace common and no same starting 
@@ -190,7 +215,7 @@ function generateDict(wordCount, checkBoxes){
             console.log(option);
             break;
         
-        default:
+        default:    //* If no checkboxes are checked
             for(let i = 0; i < wordCount; i++){
                 gen+= m_DictWords.get(String(random(csvWordCount)));
 
@@ -201,11 +226,14 @@ function generateDict(wordCount, checkBoxes){
                     gen+= ("-");
                 }
             }
-            console.log(gen);
             break;
     }
+
+    return gen;
 } 
- 
+
+//!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
 
 function generateTrad(wordCount, checkBoxes){
     gen = "";
@@ -254,9 +282,12 @@ function generateTrad(wordCount, checkBoxes){
     }
 }   
    
+//!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
 
 function replaceChar(word, option){
     var result = "";
+   
 
     if(option == '2' || option == '12' || option == '23'){
         
@@ -277,9 +308,11 @@ function replaceChar(word, option){
                 
                 default:
                     result += word.charAt(i);
+                    break;
             }
         }
-    if(option == '0' || option == '01' || option == '03'){
+
+    else if(option == '0' || option == '01' || option == '03'){
         tempChar = '';
         for(i = 0; i < word.length; i++){
             if(random(11) > 8){
@@ -289,6 +322,12 @@ function replaceChar(word, option){
             else
                 result += word.charAt(i);
         }
+    }
+    
+    else if(option == '02'){ 
+        //TODO
+        //TODO
+        //TODO
     }
 
     return result;

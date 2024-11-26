@@ -1,4 +1,5 @@
-﻿
+﻿const { response } = require("express");
+
 
 function changeFunction (checked) {
 
@@ -39,6 +40,7 @@ function generate(){
 
     // number of words to generate
     var numWords = document.getElementById("id_selectNumWords").value;
+    var data = "";
 
     if(checked){
         var nodeList = document.querySelectorAll('input[id="cbTrad"]:checked').values();
@@ -46,23 +48,34 @@ function generate(){
         var body = JSON.stringify({
             value: checked,
             wordCount: numWords,
-            check: tradCheckboxes
+            check: tradCheckboxes,
+            phrase:data
       
           });
     }
     else{
+        // grab a nodeList of the checkBoxes the were checked
         var nodeList = document.querySelectorAll('input[id="cbDict"]:checked');
+
+        // if no checkboxes were checked
+        if(nodeList.length == 0){
+          var dictCheckboxes = [""];
+        }
+
+        else{
+        // for each checkbox node, grab the value attribute and add it to an array
         var dictCheckboxes = [];
-
         nodeList.forEach(node => {
-            dictCheckboxes.push(node.value);
-          });
+          dictCheckboxes.push(String(node.value));
+        });
+        }
 
-        
+        // create json fomrat of data to send to server
         var body = JSON.stringify({
             value: checked,
             wordCount: numWords,
-            check: dictCheckboxes
+            check: dictCheckboxes,
+            phrase: data
       
           });
     }
@@ -72,14 +85,20 @@ function generate(){
     xhr.open("POST", "/genMethod");
     xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     
-    xhr.onload = () => {
-      if (xhr.readyState == 4 && xhr.status == 201) {
-        console.log(JSON.parse(xhr.responseText));
-      } else {
-        console.log(`Error: ${xhr.status}`);
-      }
-    };
+    // xhr.onload = () => {
+    //   if (xhr.readyState == 4 && xhr.status == 201) {
+    //     console.log(JSON.parse(xhr.responseText));
+    //   } else {
+    //     console.log(`Error: ${xhr.status}`);
+    //   }
+    // };
+    xhr.responseType = 'json';
     xhr.send(body);
+    
+    xhr.onload = function() {
+      console.log(xhr.response.phrase);
+    };
 
+    
 }
 
