@@ -164,4 +164,33 @@ input:checked + .slider:before {
     
 }
 
+.tooltiptext{
+    visibility: hidden;
+    
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    text-align: center;
+    border-radius: 0.25em;
+    opacity: 0.88;
+    white-space: nowrap;
+    line-height: 1;
+    height: fit-content;
+    width: fit-content;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1000;
+    top: 70%;
+    left: 25%;
+    right: 15%;
+    transition-property: visibility;
+    
+    transition-delay: 0s;
+    
+}
 
+.main:hover  + .tooltiptext  {
+    visibility: visible;
+    transition-delay: 0.3s;
+    
+  }
