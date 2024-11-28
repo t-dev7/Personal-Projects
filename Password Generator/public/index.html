@@ -16,7 +16,7 @@
 </header>
 </div>
 
-<body>
+<body onload="initStyle()">
 
     <div>
         <!-- Rounded switch -->
@@ -26,7 +26,15 @@
                 <input type="checkbox" onclick="changeFunction(checked)" id="switch">
                 <span class="slider round"></span>
             </label>
+            
         </div>
+
+        <div id="generate">
+            <button onclick="generate()" id="genButton">
+            Generate
+        </button>
+    </div>
+        
 
         <!-- Password Gen Title-->
         <div class="flex-container-row">
@@ -62,7 +70,7 @@
                             <span class="checkbox-container"></span>
                             Replace common letters with numbers/symbols
                         </label>
-                        <div class="tooltiptext">
+                        <div class="tooltiptextDict">
                             The following could be replaced<br>A = @<br>E = 3<br>I = 1<br>O = 0 (Zero)<br>S = $ </div>
                         
 
@@ -82,20 +90,31 @@
                 <h1 id = "tradTitle">Traditional</h1>
                 <!-- Traditional Password Body -->
                 <div class="flex-trad-column-body" id="trad-body">
+
                     <label class="main">
-                        <input type="checkbox" id="cbTrad" >
+                        Enter how many characters you want. <br><br>
+                        <input type="number" id="numChars" value = "" name="numChars">
+                        <span class="checkbox-container"></span>
+                        
+                    </label>
+
+                    <label class="main">
+                        <input type="checkbox" id="cbTrad" value="1" >
                         <span class="checkbox-container"></span>
                         Include Numbers
                     </label>
 
                     <label class="main">
-                        <input type="checkbox" id="cbTrad" >
+                        <input type="checkbox" id="cbTrad" value="2">
                         <span class="checkbox-container"></span>
-                        Include Lower Case Letters
+                        Include Symbols
                     </label>
+                    <div class="tooltiptextTrad">
+                        <br>!, @, #, $, %, & <br></div>
+                    
 
                     <label class="main">
-                        <input type="checkbox" id="cbTrad">
+                        <input type="checkbox" id="cbTrad" value="3">
                         <span class="checkbox-container"></span>
                         Include Upper Case Letters
                     </label>
@@ -103,13 +122,15 @@
             </div><!--Trad End-->
         </div>
 
-
-
-
-            
+        <div id="resultDiv">
+            <label id="resultLabel">
+            Your Generated Password Appears Here
+            </label>
         </div>
-        <button onclick="generate()">
-            Click
-        </button>
+        
+
+
+        </div>
+        
 </body>
 </html>

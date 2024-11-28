@@ -149,6 +149,58 @@ input:checked + .slider:before {
     padding: 50px;
 }
 
+#generate{
+    display: flex;
+    padding-top: 10px;
+    justify-content: center;
+}
+
+#genButton{
+background-color: white; 
+font-family: Arial, Helvetica, sans-serif;
+  border:10;
+  color: black;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-color: black;
+}
+
+#genButton:hover{
+    
+    color: white;
+    border-color: white;
+    background: var(--td-background-color);
+    
+    
+}
+
+
+
+
+#resultLabel{
+    height: fit-content;
+    width: fit-content;
+    border-radius: 10px;
+
+    padding-top: 5px;
+    text-align: center;
+    font-size: 50px;
+    background: rgba(248, 15, 15, 0.384);
+    box-shadow:5px 10px #000000;
+    word-break: break-all;
+    
+}
+
+#resultDiv{
+    display: flex;
+    justify-content: center;
+}
 
 
 /* checkbox container options animation */
@@ -164,7 +216,7 @@ input:checked + .slider:before {
     
 }
 
-.tooltiptext{
+.tooltiptextDict{
     visibility: hidden;
     
     background-color: rgb(255, 255, 255);
@@ -189,7 +241,38 @@ input:checked + .slider:before {
     
 }
 
-.main:hover  + .tooltiptext  {
+.main:hover  + .tooltiptextDict  {
+    visibility: visible;
+    transition-delay: 0.3s;
+    
+  }
+
+  .tooltiptextTrad{
+    visibility: hidden;
+    
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    text-align: center;
+    border-radius: 0.25em;
+    opacity: 0.88;
+    white-space: nowrap;
+    line-height: 1;
+    height: fit-content;
+    width: fit-content;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1000;
+    top: 60%;
+    left: 65%;
+    right: 75%;
+    transition-property: visibility;
+    
+    transition-delay: 0s;
+    
+}
+
+.main:hover  + .tooltiptextTrad  {
     visibility: visible;
     transition-delay: 0.3s;
     
